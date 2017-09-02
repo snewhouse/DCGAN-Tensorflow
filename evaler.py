@@ -6,20 +6,18 @@ from six.moves import xrange
 import numpy as np
 
 from util import log
-from pprint import pprint
 
-from input_ops import create_input_ops, check_data_id
+from input_ops import create_input_ops
+from model import Model
 
-import os
 import time
-import numpy as np
 import tensorflow as tf
 import h5py
 
-class PoseEvalManager(object):
+
+class EvalManager(object):
 
     def __init__(self):
-        # collection of batches (not flattened)
         self._ids = []
         self._predictions = []
         self._groundtruths = []
@@ -32,17 +30,12 @@ class PoseEvalManager(object):
 
     def dump_result(self, filename):
         log.infov("Dumping prediction result into %s ...", filename)
-        f.h5py.File(filename, 'w')
+        f = h5py.File(filename, 'w')
         f['image'] = np.concatenate(self._predictions)
         log.info("Dumping prediction done.")
 
+
 class Evaler(object):
-
-    @staticmethod
-    def get_model_class():
-        from model import Model
-        return Model
-
 
     def __init__(self,
                  config,
@@ -62,7 +55,6 @@ class Evaler(object):
                                          shuffle=False)
 
         # --- create model ---
-        Model = self.get_model_class()
         self.model = Model(config)
 
         self.global_step = tf.contrib.framework.get_or_create_global_step(graph=None)
@@ -98,7 +90,6 @@ class Evaler(object):
         log.infov("Start 1-epoch Inference and Evaluation")
 
         log.info("# of examples = %d", len(self.dataset))
-        length_dataset = len(self.dataset)
 
         max_steps = self.config.max_steps
         log.info("max_steps = %d", max_steps)
@@ -107,7 +98,7 @@ class Evaler(object):
         threads = tf.train.start_queue_runners(self.session,
                                                coord=coord, start=True)
 
-        evaler = PoseEvalManager()
+        evaler = EvalManager()
         try:
             for s in xrange(max_steps):
                 step, step_time, batch_chunk, prediction_pred, prediction_gt = \
@@ -122,7 +113,7 @@ class Evaler(object):
         try:
             coord.join(threads, stop_grace_period_secs=3)
         except RuntimeError as e:
-            log.warn(str(e)) # just simply ignore as of now
+            log.warn(str(e))
 
         if self.config.output_file:
             evaler.dump_result(self.config.output_file)
@@ -153,6 +144,7 @@ class Evaler(object):
                          )
                )
 
+
 def main():
     import argparse
     parser = argparse.ArgumentParser()
@@ -160,12 +152,14 @@ def main():
     parser.add_argument('--output_file', type=str, default=None)
     parser.add_argument('--checkpoint_path', type=str)
     parser.add_argument('--train_dir', type=str)
-    parser.add_argument('--dataset', type=str, default='CIFAR10', choices=['MNIST', 'SVHN', 'CIFAR10'])
+    parser.add_argument('--dataset', type=str, default='CIFAR10', choices=['MNIST', 'Fashion', 'SVHN', 'CIFAR10'])
     parser.add_argument('--max_steps', type=int, default=1)
     config = parser.parse_args()
 
     if config.dataset == 'mnist':
-        import mnist_dataset as dataset
+        import datasets.mnist as dataset
+    elif config.dataset == 'Fashion':
+        import datasets.fashion_mnist as dataset
     elif config.dataset == 'SVHN':
         import datasets.svhn as dataset
     elif config.dataset == 'CIFAR10':
