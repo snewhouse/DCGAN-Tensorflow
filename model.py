@@ -58,7 +58,6 @@ class Model(object):
         w = self.input_width
         deconv_info = self.deconv_info
         conv_info = self.conv_info
-        c_dim = self.c_dim
         n_z = 100
 
         # G takes ramdon noise and tries to generate images [B, h, w, c]
@@ -66,7 +65,7 @@ class Model(object):
             with tf.variable_scope(scope) as scope:
                 print ('\033[93m'+scope.name+'\033[0m')
                 z = tf.reshape(z, [self.batch_size, 1, 1, -1])
-                g_1 = deconv2d(z, deconv_info[0], is_train, name='g_1_deconv') 
+                g_1 = deconv2d(z, deconv_info[0], is_train, name='g_1_deconv')
                 print (scope.name, g_1)
                 g_2 = deconv2d(g_1, deconv_info[1], is_train, name='g_2_deconv')
                 print (scope.name, g_2)
@@ -133,7 +132,9 @@ class Model(object):
         tf.summary.scalar("loss/GAN_loss", GAN_loss)
         tf.summary.scalar("loss/d_loss", tf.reduce_mean(self.d_loss))
         tf.summary.scalar("loss/d_loss_real", tf.reduce_mean(d_loss_real))
+        tf.summary.scalar("loss/d_prob_real", tf.reduce_mean(d_real))
         tf.summary.scalar("loss/d_loss_fake", tf.reduce_mean(d_loss_fake))
+        tf.summary.scalar("loss/d_prob_fake", tf.reduce_mean(d_fake))
         tf.summary.scalar("loss/g_loss", tf.reduce_mean(self.g_loss))
         tf.summary.image("fake", fake_image)
         tf.summary.image("real", self.image, max_outputs=1)

@@ -8,7 +8,8 @@ import h5py
 import numpy as np
 
 parser = argparse.ArgumentParser(description='Download dataset for DCGAN.')
-parser.add_argument('--datasets', metavar='N', type=str, nargs='+', choices=['MNIST', 'SVHN', 'CIFAR10'])
+parser.add_argument('--datasets', metavar='N', type=str, nargs='+',
+                    choices=['MNIST', 'Fashion', 'SVHN', 'CIFAR10'])
 
 def prepare_h5py(train_image, test_image, data_dir, shape=None):
 
@@ -26,7 +27,7 @@ def prepare_h5py(train_image, test_image, data_dir, shape=None):
     data_id = open(os.path.join(data_dir,'id.txt'), 'w')
     for i in range(image.shape[0]):
 
-        if i%(image.shape[0]/100)==0: 
+        if i%(image.shape[0]/100)==0:
             bar.update(i/(image.shape[0]/100))
 
         grp = f.create_group(str(i))
@@ -50,7 +51,7 @@ def download_mnist(download_path):
 
     data_url = 'http://yann.lecun.com/exdb/mnist/'
     keys = ['train-images-idx3-ubyte.gz', 't10k-images-idx3-ubyte.gz']
-    
+
     for k in keys:
         url = (data_url+k).format(**locals())
         target_path = os.path.join(data_dir, k)
@@ -60,7 +61,7 @@ def download_mnist(download_path):
         cmd = ['gzip', '-d', target_path]
         print('Unzip ', k)
         subprocess.call(cmd)
-    
+
     num_mnist_train = 60000
     num_mnist_test = 10000
 
@@ -78,8 +79,48 @@ def download_mnist(download_path):
         cmd = ['rm', '-f', os.path.join(data_dir, k[:-3])]
         subprocess.call(cmd)
 
+
+def download_fashion_mnist(download_path):
+    data_dir = os.path.join(download_path, 'fashion_mnist')
+    if os.path.exists(data_dir):
+        print('Fashion MNIST was downloaded.')
+        return
+    else:
+        os.mkdir(data_dir)
+
+    data_url = 'http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/'
+    keys = ['train-images-idx3-ubyte.gz', 't10k-images-idx3-ubyte.gz']
+
+    for k in keys:
+        url = (data_url+k).format(**locals())
+        target_path = os.path.join(data_dir, k)
+        cmd = ['curl', url, '-o', target_path]
+        print('Downloading ', k)
+        subprocess.call(cmd)
+        cmd = ['gzip', '-d', target_path]
+        print('Unzip ', k)
+        subprocess.call(cmd)
+
+    num_mnist_train = 60000
+    num_mnist_test = 10000
+
+    fd = open(os.path.join(data_dir,'train-images-idx3-ubyte'))
+    loaded = np.fromfile(file=fd,dtype=np.uint8)
+    train_image = loaded[16:].reshape((num_mnist_train,28,28,1)).astype(np.float)
+
+    fd = open(os.path.join(data_dir,'t10k-images-idx3-ubyte'))
+    loaded = np.fromfile(file=fd,dtype=np.uint8)
+    test_image = loaded[16:].reshape((num_mnist_test,28,28,1)).astype(np.float)
+
+    prepare_h5py(train_image, test_image, data_dir)
+
+    for k in keys:
+        cmd = ['rm', '-f', os.path.join(data_dir, k[:-3])]
+        subprocess.call(cmd)
+
+
 def download_svhn(download_path):
-    
+
     import scipy.io as sio
     # svhn file loader
     def svhn_loader(url, path):
@@ -98,7 +139,7 @@ def download_svhn(download_path):
     print('Downloading SVHN')
     data_url = 'http://ufldl.stanford.edu/housenumbers/train_32x32.mat'
     train_image = svhn_loader(data_url, os.path.join(data_dir, 'train_32x32.mat'))
-    
+
     data_url = 'http://ufldl.stanford.edu/housenumbers/test_32x32.mat'
     test_image = svhn_loader(data_url, os.path.join(data_dir, 'test_32x32.mat'))
 
@@ -161,6 +202,8 @@ if __name__ == '__main__':
 
     if 'MNIST' in args.datasets:
         download_mnist('./datasets')
+    if 'Fashion' in args.datasets:
+        download_fashion_mnist('./datasets')
     if 'SVHN' in args.datasets:
         download_svhn('./datasets')
     if 'CIFAR10' in args.datasets:
