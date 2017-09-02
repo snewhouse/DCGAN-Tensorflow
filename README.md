@@ -5,7 +5,7 @@ This is my [Tensorflow](https://www.tensorflow.org/) implementation of **Deep Co
 
 <img src="figure/dcgan.png" height="300"/>
 
-The implemented model is trained and tested on three publicly available datasets: [MNIST](http://yann.lecun.com/exdb/mnist/), [SVHN](http://ufldl.stanford.edu/housenumbers/), and [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html).
+The implemented model is trained and tested on four publicly available datasets: [MNIST](http://yann.lecun.com/exdb/mnist/), [Fashion MNIST](https://github.com/zalandoresearch/fashion-mnist), [SVHN](http://ufldl.stanford.edu/housenumbers/), and [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html).
 
 Note that this implementation only follows the main architecture of the original paper while differing a lot in implementation details such as hyperparameters, applied optimizer, etc. Also, some useful training tricks applied to this implementation are stated at the end of this README.
 
@@ -20,23 +20,29 @@ Note that this implementation only follows the main architecture of the original
 
 ## Usage
 
-Download datasets with:
+### Download datasets
 ```bash
-$ python download.py --dataset MNIST SVHN CIFAR10
+$ python download.py --dataset MNIST Fashion SVHN CIFAR10
 ```
-Train models with downloaded datasets:
+
+### Train models with downloaded datasets:
 ```bash
 $ python trainer.py --dataset MNIST
+$ python trainer.py --dataset Fashion
 $ python trainer.py --dataset SVHN
 $ python trainer.py --dataset CIFAR10
 ```
-Test models with saved checkpoints:
+
+### Test models with saved checkpoints:
 ```bash
 $ python evaler.py --dataset MNIST --checkpoint ckpt_dir
+$ python evaler.py --dataset Fashion --checkpoint ckpt_dir
 $ python evaler.py --dataset SVHN --checkpoint ckpt_dir
 $ python evaler.py --dataset CIFAR10 --checkpoint ckpt_dir
 ```
-Train and test your own datasets:
+The *ckpt_dir* should be like: ```train_dir/default-MNIST_lr_0.0001-20170101-123456/model-1001```
+
+### Train and test your own datasets:
 
 * Create a directory
 ```bash
@@ -50,8 +56,10 @@ $ mkdir datasets/YOUR_DATASET
 * Finally, train and test models:
 ```bash
 $ python trainer.py --dataset YOUR_DATASET
-$ python evaler.py --dataset YOUR_DATASET
+$ python evaler.py --dataset YOUR_DATASET --train_dir dir
 ```
+The *dir* should be like: ```train_dir/default-MNIST_lr_0.0001-20170101-123456/model-1001```
+
 ## Results
 
 ### MNIST
@@ -63,6 +71,16 @@ $ python evaler.py --dataset YOUR_DATASET
 * First 40 epochs
 
 <img src="figure/result/mnist/training.gif" height="250"/>
+
+### Fashion MNIST
+
+* Generated samples (100th epochs)
+
+<img src="figure/result/fashion/samples.png" height="250"/>
+
+* First 40 epochs
+
+<img src="figure/result/fashion/training.gif" height="250"/>
 
 ### SVHN
 
@@ -165,8 +183,10 @@ G_loss
 * Please refer to the codes for more details.
 
 ## Related works
-* My implementation of [Semi-supervised Learning Generative Adversarial Networks](https://github.com/shaohua0116/SSGAN-Tensorflow) in Tensorflow
 * [Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks](https://arxiv.org/abs/1511.06434) by Radford
+* [Fashion MNIST](https://github.com/zalandoresearch/fashion-mnist)
+* My implementation of [Semi-supervised Learning Generative Adversarial Networks](https://github.com/shaohua0116/SSGAN-Tensorflow) in Tensorflow
+* My implementation of [Generative Latent Optimization](https://github.com/shaohua0116/Generative-Latent-Optimization-Tensorflow) in Tensorflow
 
 ## Author
 
