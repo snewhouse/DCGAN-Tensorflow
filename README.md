@@ -27,16 +27,16 @@ $ python download.py --dataset MNIST Fashion SVHN CIFAR10
 
 ### Train models with downloaded datasets:
 ```bash
-$ python trainer.py --dataset MNIST
 $ python trainer.py --dataset Fashion
+$ python trainer.py --dataset MNIST
 $ python trainer.py --dataset SVHN
 $ python trainer.py --dataset CIFAR10
 ```
 
 ### Test models with saved checkpoints:
 ```bash
-$ python evaler.py --dataset MNIST --checkpoint ckpt_dir
 $ python evaler.py --dataset Fashion --checkpoint ckpt_dir
+$ python evaler.py --dataset MNIST --checkpoint ckpt_dir
 $ python evaler.py --dataset SVHN --checkpoint ckpt_dir
 $ python evaler.py --dataset CIFAR10 --checkpoint ckpt_dir
 ```
@@ -62,16 +62,6 @@ The *dir* should be like: ```train_dir/default-MNIST_lr_0.0001-20170101-123456/m
 
 ## Results
 
-### MNIST
-
-* Generated samples (100th epochs)
-
-<img src="figure/result/mnist/samples.png" height="250"/>
-
-* First 40 epochs
-
-<img src="figure/result/mnist/training.gif" height="250"/>
-
 ### Fashion MNIST
 
 * Generated samples (100th epochs)
@@ -81,6 +71,16 @@ The *dir* should be like: ```train_dir/default-MNIST_lr_0.0001-20170101-123456/m
 * First 40 epochs
 
 <img src="figure/result/fashion/training.gif" height="250"/>
+
+### MNIST
+
+* Generated samples (100th epochs)
+
+<img src="figure/result/mnist/samples.png" height="250"/>
+
+* First 40 epochs
+
+<img src="figure/result/mnist/training.gif" height="250"/>
 
 ### SVHN
 
